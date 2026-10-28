@@ -1,0 +1,9 @@
+build/
+dist/
+*.dmg
+*.app
+state/
+notifier.log
+.DS_Store
+__pycache__/
+*.pyc
