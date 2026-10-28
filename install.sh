@@ -4,9 +4,14 @@ set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 APP="$HOME/Applications/ClaudeNotifier.app"
 
-mkdir -p "$APP/Contents/MacOS"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -o "$APP/Contents/MacOS/ClaudeNotifier" "$DIR/ClaudeNotifier.swift" 2>&1 | grep -v '^objc\[' || true
 test -x "$APP/Contents/MacOS/ClaudeNotifier"
+
+ICONSET="$(mktemp -d)/AppIcon.iconset"
+swift "$DIR/make-icon.swift" "$ICONSET" 2>&1 | grep -v '^objc\[' || true
+iconutil -c icns -o "$APP/Contents/Resources/AppIcon.icns" "$ICONSET"
+rm -rf "$(dirname "$ICONSET")"
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -15,6 +20,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundleIdentifier</key><string>com.firozmemon.claude-notifier</string>
   <key>CFBundleName</key><string>Claude Notifier</string>
   <key>CFBundleExecutable</key><string>ClaudeNotifier</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>LSUIElement</key><true/>
 </dict></plist>
